@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-
+var clock = new THREE.Clock();
 
 //1. Creating a scene
 const scene = new THREE.Scene();
@@ -30,7 +30,9 @@ const cube = new THREE.Mesh(geometry,material);
 //4.4 add the cube to the scene
 scene.add(cube);
 //By default, when we call scene.add(), the thing we add will be added to the coordinates (0,0,0). This would cause both the camera and the cube to be inside each other. To avoid this, we simply move the camera out a bit.
-camera.position.z = 5;
+camera.position.z = 3.5;
+camera.position.y = 1;
+cube.position.y = -0.5;
 //enabling shadow
 cube.castShadow = true;
 cube.receiveShadow = true;
@@ -38,19 +40,17 @@ cube.receiveShadow = true;
 //5. Render the scene
 function animate(){
     requestAnimationFrame(animate);
-    //rotating the cube
-    cube.rotation.x = cube.rotation.x + 0.01;
-    cube.rotation.y += 0.01;
+    //cubeForce();
     renderer.render(scene,camera);
 }
 animate();
 
 //6.Creating a ground
-const groundGeometry = new THREE.PlaneGeometry(10,10);
+const groundGeometry = new THREE.PlaneGeometry(20,1000);
 const groundMaterial = new THREE.MeshStandardMaterial( {color : 0xffccff } );
 const ground = new THREE.Mesh(groundGeometry,groundMaterial);
 //rotating the ground
-ground.rotation.x = -45;
+ground.rotation.x = - Math.PI / 2;
 ground.position.y = -2;
 ground.receiveShadow = true;
 
@@ -65,3 +65,38 @@ scene.add(light);
 
 //8. Changing Scene Background color
 scene.background = new THREE.Color(0xffe6ff)
+
+console.log(cube.position)
+console.log(ground.position)
+
+document.addEventListener('keydown', (event) =>{
+    var delta = clock.getDelta();
+    var moveDistance = 200* delta;
+    if(event.key == 'a'){
+        console.log(cube.position);
+        if(cube.position.x > -6){
+            //cube.position.x -= moveDistance/10;
+            cube.position.x -= 0.2;
+            console.log(event.key+" key is pressed");
+        }
+        
+    }
+    if(event.key == 'd'){
+        console.log(cube.position)
+        if(cube.position.x < 6){
+            //cube.position.x += moveDistance/10;
+            cube.position.x += 0.2;
+            console.log(event.key+" key is pressed")
+        }
+        
+    }
+}
+)
+
+function cubeForce(){
+    var delta = clock.getDelta();
+    var moveDistance = 200* delta;
+    //console.log(clock,delta,moveDistance);
+    cube.position.z -= moveDistance/10;
+    camera.position.z -= moveDistance/10;
+}
