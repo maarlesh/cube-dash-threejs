@@ -3,6 +3,8 @@ import * as THREE from 'three';
 const obstacles = [];
 const numObstacles = 5;
 let gameStatus = "";
+let cube;
+let ground;
 document.addEventListener('keydown', function(event) {
     if (event.code === 'Space') {
       document.getElementById("start-message").style.display = 'none';
@@ -39,7 +41,7 @@ function startGame(){
     //4.2 Creating a material (MeshMaterial) to add to the cube it takes a argument to pass the properties (eg. color takes a hexadecimal value)
     const material = new THREE.MeshStandardMaterial( {color: 0xffffff, metalness : 0.1} );
     //4.3 Create a Mesh with the geometry and the material
-    const cube = new THREE.Mesh(geometry,material);
+    cube = new THREE.Mesh(geometry,material);
     //4.4 add the cube to the scene
     scene.add(cube);
     //By default, when we call scene.add(), the thing we add will be added to the coordinates (0,0,0). This would cause both the camera and the cube to be inside each other. To avoid this, we simply move the camera out a bit.
@@ -75,6 +77,7 @@ function startGame(){
         if(gameStatus == 'level_completed'){
             console.log("Level Completed");
             // move to next level
+            levelCompleted();
             return;
         }
         cubeForce();
@@ -85,7 +88,7 @@ function startGame(){
     //6.Creating a ground
     const groundGeometry = new THREE.PlaneGeometry(20,1000);
     const groundMaterial = new THREE.MeshStandardMaterial( {color : 0xff80ff } );
-    const ground = new THREE.Mesh(groundGeometry,groundMaterial);
+    ground = new THREE.Mesh(groundGeometry,groundMaterial);
     //rotating the ground
     ground.rotation.x = - Math.PI / 2;
     ground.position.y = -2;
@@ -122,20 +125,20 @@ function startGame(){
         var delta = clock.getDelta();
        // var moveDistance = 200* delta;
         if(event.key == 'a'){
-            console.log(cube.position);
+           // console.log(cube.position);
             if(cube.position.x > -6){
                 //cube.position.x -= moveDistance/10;
                 cube.position.x -= 0.2;
-                console.log(event.key+" key is pressed");
+               // console.log(event.key+" key is pressed");
             }
             
         }
         if(event.key == 'd'){
-            console.log(cube.position)
+           // console.log(cube.position)
             if(cube.position.x < 6){
                 //cube.position.x += moveDistance/10;
                 cube.position.x += 0.2;
-                console.log(event.key+" key is pressed")
+               // console.log(event.key+" key is pressed")
             }
             
         }
@@ -149,13 +152,12 @@ function startGame(){
     )
 
     function cubeForce(){
-        var delta = clock.getDelta();
         if (gameStatus === 'over' || gameStatus === 'level_completed') {
             return;
         }
         var moveDistance = 1
         //console.log(clock,delta,moveDistance);
-        if(cube.position.z > -100 && gameStatus != 'over'){
+        if(cube.position.z > -102 && gameStatus != 'over'){
             cube.position.z -= moveDistance/10;
             camera.position.z -= moveDistance/10;
         }
@@ -167,7 +169,7 @@ function startGame(){
 
     function checkCollision(){
         for (const obstacle of obstacles) {
-            if (cube.position.distanceTo(obstacle.position) < 2.0) {
+            if (cube.position.distanceTo(obstacle.position) < 1.5) {
                 console.log("Collision Detected");
                 console.log(cube.position.distanceTo(obstacle.position)); 
                 console.log(obstacle.position);
@@ -175,14 +177,20 @@ function startGame(){
                 gameStatus = "over";
                 return gameStatus;
             }
-            if(cube.position.z < -100){
+            if(cube.position.z < -102){
                 gameStatus = "level_completed";
+                camera.position.y++;
                 return gameStatus;
             }
             
         }
+    }
+
+    function levelCompleted(){
+        const levelCompletedMessage = document.getElementById("level-completed-message");
+        levelCompletedMessage.style.display = 'block'; 
         
-}
+    }
     
     
 }
