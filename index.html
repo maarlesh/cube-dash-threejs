@@ -51,12 +51,35 @@ body {
   100% { opacity: 1 ; }
 }
 
+#game-over-message{
+      left: 40%;
+      margin-top: 200px;
+      position: absolute;
+      color: black;
+      font-size: 40px;
+      text-align: center;
+      display: none;
+      background-color: #ffe6ff;
+      animation: fadeIn 2s;
+}
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1 ; }
+}
 
+#game-over-message-animation{
+  animation: fadeInOut 1.5s infinite alternate;
+}
 
 </style>
 <body>
-    <script src="main.js" type="module"></script>
+    <script src="main2.js" type="module"></script>
     <div id="start-message">CUBE-DASH<br><br><br><div id='start-message-animation'>Press space to start the game</div></div>
     <div id="level-completed-message" class="hidden-message">Level Completed</div>
+    <div id="game-over-message" class="hidden-message">Dashed<br> <br>
+      <div id="game-over-message-animation">
+        Press 'ESC' to restart
+      </div> 
+      </div>
   </body>
 </html>

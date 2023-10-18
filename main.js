@@ -1,14 +1,18 @@
 import * as THREE from 'three';
 
-const obstacles = [];
+let obstacles = [];
 const numObstacles = 5;
 let gameStatus = "";
 let cube;
 let ground;
+let light;
+let camera;
+const moveDistance = 1
 document.addEventListener('keydown', function(event) {
     if (event.code === 'Space') {
       document.getElementById("start-message").style.display = 'none';
-      startGame();
+      var res = startGame();
+      console.log(res)
     }
     
   });
@@ -22,7 +26,7 @@ document.addEventListener('keydown', function(event) {
 
  //2. Creating a Perspective Camera takes 4 arguement 1. FOV (Field of view) 2. Aspect ration 3. Nearest clipping point 4. farthest clipping window point 
  const aspectRatio = window.innerWidth/window.innerHeight;
- const camera = new THREE.PerspectiveCamera(90, aspectRatio, 0.1,1000);
+ camera = new THREE.PerspectiveCamera(90, aspectRatio, 0.1,1000);
 
  //3. Creating a Renderer to render
  const renderer = new THREE.WebGLRenderer({antialias: true});
@@ -53,7 +57,7 @@ function startGame(){
     cube.receiveShadow = true;
 
      //7. Adding Light
-     const light = new THREE.DirectionalLight(0xffffff, 3);
+     light = new THREE.DirectionalLight(0xffffff, 3);
      light.position.set(1, 1, 5);
      light.castShadow = true;
      scene.add(light);
@@ -69,10 +73,9 @@ function startGame(){
         if(gameStatus == 'over')
         {
             console.log("Game over");
-
+            resetLevel();
             // reset the level
-
-            return;
+            return -1;
         }
         if(gameStatus == 'level_completed'){
             console.log("Level Completed");
@@ -83,8 +86,8 @@ function startGame(){
         cubeForce();
         renderer.render(scene,camera);
     }
-    animate();
-
+    var a = animate();
+    console.log(a);
     //6.Creating a ground
     const groundGeometry = new THREE.PlaneGeometry(20,1000);
     const groundMaterial = new THREE.MeshStandardMaterial( {color : 0xff80ff } );
@@ -155,7 +158,6 @@ function startGame(){
         if (gameStatus === 'over' || gameStatus === 'level_completed') {
             return;
         }
-        var moveDistance = 1
         //console.log(clock,delta,moveDistance);
         if(cube.position.z > -102 && gameStatus != 'over'){
             cube.position.z -= moveDistance/10;
@@ -191,7 +193,20 @@ function startGame(){
         levelCompletedMessage.style.display = 'block'; 
         
     }
-    
+    return 0;
     
 }
 
+function resetLevel(){
+    setTimeout(() => {
+        gameStatus = "";
+        scene.remove(cube);
+        scene.remove(ground);
+        scene.remove(light);
+        for (let i = 0; i < obstacles.length; i++) {
+            const obstacle1 = obstacles[i];
+            scene.remove(obstacle1);
+        }
+        obstacles.length = 0;
+    }, 3000);
+}
