@@ -11,28 +11,28 @@ document.addEventListener('keydown', function(event) {
     
   });
   
+
+ //1. Creating a scene
+ const scene = new THREE.Scene();
+
+ //console.log(window.innerHeight); //838
+ //console.log(window.innerWidth);  //1104
+
+ //2. Creating a Perspective Camera takes 4 arguement 1. FOV (Field of view) 2. Aspect ration 3. Nearest clipping point 4. farthest clipping window point 
+ const aspectRatio = window.innerWidth/window.innerHeight;
+ const camera = new THREE.PerspectiveCamera(90, aspectRatio, 0.1,1000);
+
+ //3. Creating a Renderer to render
+ const renderer = new THREE.WebGLRenderer({antialias: true});
+ //setting size of the renderer
+ renderer.setSize(window.innerWidth,window.innerHeight);
+ renderer.shadowMap.enabled = true; // Enable shadow mapping
+ //appending the render to the dom of the body
+ document.body.appendChild(renderer.domElement);
+
+
 function startGame(){
     var clock = new THREE.Clock();
-
-    //1. Creating a scene
-    const scene = new THREE.Scene();
-
-    //console.log(window.innerHeight); //838
-    //console.log(window.innerWidth);  //1104
-
-    //2. Creating a Perspective Camera takes 4 arguement 1. FOV (Field of view) 2. Aspect ration 3. Nearest clipping point 4. farthest clipping window point 
-    const aspectRatio = window.innerWidth/window.innerHeight;
-    const camera = new THREE.PerspectiveCamera(90, aspectRatio, 0.1,1000);
-
-    //3. Creating a Renderer to render
-    const renderer = new THREE.WebGLRenderer({antialias: true});
-    //setting size of the renderer
-    renderer.setSize(window.innerWidth,window.innerHeight);
-    renderer.shadowMap.enabled = true; // Enable shadow mapping
-    //appending the render to the dom of the body
-    document.body.appendChild(renderer.domElement);
-
-
     //4. Creating a Cube
     //4.1 Create a BoxGeometry to store the dimension of the cube
     const geometry = new THREE.BoxGeometry(1,1,1);
@@ -60,15 +60,24 @@ function startGame(){
     //5. Render the scene
     function animate(){
         requestAnimationFrame(animate);
-        cubeForce();
+        if (gameStatus === 'over' || gameStatus === 'level_completed') {
+            return;
+        }
         gameStatus = checkCollision();
         if(gameStatus == 'over')
         {
+            console.log("Game over");
+
+            // reset the level
+
             return;
         }
         if(gameStatus == 'level_completed'){
             console.log("Level Completed");
+            // move to next level
+            return;
         }
+        cubeForce();
         renderer.render(scene,camera);
     }
     animate();
@@ -103,7 +112,6 @@ function startGame(){
         obstacle.position.y = -0.5;
         // Set random positions for obstacles
         obstacle.position.x = Math.random() * 6 - 3; // Random x position between -3 and 3
-        //bstacle.position.z = Math.random() * 50 - 3; // Random z position between -3 and 3
         obstacle.position.z = Math.random() * (100 - 10) - 100;
         obstacles.push(obstacle);
     }
@@ -112,7 +120,7 @@ function startGame(){
 
     document.addEventListener('keydown', (event) =>{
         var delta = clock.getDelta();
-        var moveDistance = 200* delta;
+       // var moveDistance = 200* delta;
         if(event.key == 'a'){
             console.log(cube.position);
             if(cube.position.x > -6){
@@ -142,6 +150,9 @@ function startGame(){
 
     function cubeForce(){
         var delta = clock.getDelta();
+        if (gameStatus === 'over' || gameStatus === 'level_completed') {
+            return;
+        }
         var moveDistance = 1
         //console.log(clock,delta,moveDistance);
         if(cube.position.z > -100 && gameStatus != 'over'){
@@ -156,15 +167,19 @@ function startGame(){
 
     function checkCollision(){
         for (const obstacle of obstacles) {
-            if (cube.position.distanceTo(obstacle.position) <= 2.0000000000000000) {
+            if (cube.position.distanceTo(obstacle.position) < 2.0) {
                 console.log("Collision Detected");
                 console.log(cube.position.distanceTo(obstacle.position)); 
                 console.log(obstacle.position);
                 console.log(cube.position)
                 gameStatus = "over";
                 return gameStatus;
-                // Adjust cube position or handle collision logic here
             }
+            if(cube.position.z < -100){
+                gameStatus = "level_completed";
+                return gameStatus;
+            }
+            
         }
         
 }
